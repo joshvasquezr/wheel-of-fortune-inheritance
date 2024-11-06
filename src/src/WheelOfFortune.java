@@ -4,31 +4,45 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
 
-public class WheelOfFortune extends Game {
+abstract class WheelOfFortune extends Game {
+    protected String guessedLetters;
+    protected int score;
 
-    // randomly selects phrase from phrase.txt
-    public String randomPhrase(){
-        List<String> phraseList=null;
+    // Constructor: sets up a random phrase, hidden phrase, initializes guessed letters and score
+    public WheelOfFortune() {
+        super();
+        this.phrase = randomPhrase();
+        this.hiddenPhrase = generateHiddenPhrase();
+        this.guessedLetters = "";
+        this.score = 0;
+    }
 
+    // Resets the game by setting lives, score, phrase, hidden phrase, and guessed letters
+    public void resetGame() {
+        this.lives = 3;  // Reset lives to the initial count
+        this.score = 0;  // Reset score to zero
+        this.phrase = randomPhrase();  // Get a new random phrase
+        this.hiddenPhrase = generateHiddenPhrase();  // Generate the hidden version of the new phrase
+        this.guessedLetters = "";  // Clear any guessed letters
+    }
+
+    // Selects a random phrase from a list of phrases in a file
+    public String randomPhrase() {
+        List<String> phraseList = null;
         try {
-            phraseList = Files.readAllLines(Paths.get("/Users/joshv/repos/wheel-of-fortune-inheritance/src/phrases.txt"));
+            phraseList = Files.readAllLines(Paths.get("phrases.txt"));
         } catch (IOException e) {
             System.out.println(e);
         }
-
-        // Get a random phrase from the list
         Random rand = new Random();
-        int r = rand.nextInt(phraseList.size()); // gets 0, 1, or 2
-        return phraseList.get(r);
+        return phraseList.get(rand.nextInt(phraseList.size()));
     }
 
-
-    // encrypts randomly selected phrase from randomPhrase()
+    // Creates the hidden version of the phrase, with letters replaced by '*'
     public StringBuilder generateHiddenPhrase() {
-        hiddenPhrase = new StringBuilder();
-        for (int i = 0; i < phrase.length(); i++) {
-            char ch = phrase.charAt(i);
-            if (ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z') {
+        StringBuilder hiddenPhrase = new StringBuilder();
+        for (char ch : phrase.toCharArray()) {
+            if (Character.isLetter(ch)) {
                 hiddenPhrase.append('*');
             } else {
                 hiddenPhrase.append(ch);
@@ -37,28 +51,31 @@ public class WheelOfFortune extends Game {
         return hiddenPhrase;
     }
 
+    // Abstract method: should be implemented to return a guessed character
+    public abstract char getGuess();
 
-    // Processes the User's guess to see if it is found in the hidden phrase or not
+    // Processes a single letter guess, updating the hidden phrase, score, and lives
     public void processGuess(char guess) {
-
         int correctGuess = 0;
-
         for (int i = 0; i < phrase.length(); i++) {
-            char phraseChar = phrase.charAt(i);
-
-            // if TRUE: update hiddenPhrase, lettersFound, else check if user found the whole phrase
-            if (guess == Character.toLowerCase(phraseChar)) {
-                hiddenPhrase.setCharAt(i, phraseChar);
+            if (guess == Character.toLowerCase(phrase.charAt(i))) {
+                hiddenPhrase.setCharAt(i, phrase.charAt(i));
                 correctGuess++;
             }
         }
-
-        // Checks if the user a letter NOT FOUND in the Hidden Phrase and takes away ONE life
-        if (correctGuess == 0) {
-            lives -= 1; // PENALTY: Minus One Life for incorrect guess
-            System.out.printf("Incorrect Guess! You now have [" + lives + "] lives left.%n");
+        if (correctGuess > 0) {
+            score += correctGuess * 5; // Add 5 points for each correct letter guessed
+        } else {
+            lives--;
+            score -= 10; // Deduct 10 points for an incorrect guess
+            System.out.println("Incorrect guess! Lives remaining: " + lives);
         }
-
     }
 
+    // Checks if the entire phrase was guessed and awards 100 points if correct
+    public void processPhraseGuess() {
+        if (phrase.equals(hiddenPhrase.toString())) {
+            score += 100; // Add 100 points for guessing the entire phrase correctly
+        }
+    }
 }

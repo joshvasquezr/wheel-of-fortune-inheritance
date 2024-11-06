@@ -26,7 +26,7 @@ public class WheelOfFortuneObject {
         List<String> phraseList=null;
 
         try {
-            phraseList = Files.readAllLines(Paths.get("/Users/joshv/repos/wheel-of-fortune-inheritance/src/phrases.txt"));
+            phraseList = Files.readAllLines(Paths.get("/Users/joshv/repos/wheel-of-fortune-inheritance/src/src/phrases.txt"));
         } catch (IOException e) {
             System.out.println(e);
         }

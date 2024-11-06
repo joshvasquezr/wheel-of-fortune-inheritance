@@ -1,4 +1,3 @@
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -7,17 +6,17 @@ public class AllGamesRecord {
 
     private List<GameRecord> gameRecordList;
 
-    // constructor, initializes list
+    // Constructor: initializes the gameRecordList as an empty ArrayList
     public AllGamesRecord() {
         this.gameRecordList = new ArrayList<GameRecord>();
     }
 
-    // adds new game record to gameRecordList
+    // Adds a new game record to the gameRecordList
     public void add(GameRecord gr) {
         this.gameRecordList.add(gr);
     }
 
-    // calcs average of the whole list
+    // Calculates the average score of all game records in the list
     public double average() {
         double sum = 0;
         double score = 0;
@@ -28,23 +27,25 @@ public class AllGamesRecord {
         return sum / this.gameRecordList.size();
     }
 
-    // calcs the average of a particular player's scores
+    // Calculates the average score for a specific player based on playerId
     public double average(String playerId) {
         double sum = 0;
         double score = 0;
+        int count = 0;
         for (GameRecord gr : gameRecordList) {
             if (gr.getPlayerId().equals(playerId)) {
                 score = gr.getScore();
                 sum = sum + score;
+                count++;
             }
         }
-        return sum / this.gameRecordList.size();
+        return count > 0 ? sum / count : 0; // Check to avoid division by zero if no records found
     }
 
-    // use collections to sort from high to low of "n" records
-    public List<GameRecord> highGameList (int n) {
+    // Returns a list of the top "n" highest-scoring game records
+    public List<GameRecord> highGameList(int n) {
         List<GameRecord> sortedRecords = new ArrayList<GameRecord>(gameRecordList);
-        Collections.sort(sortedRecords);
+        Collections.sort(sortedRecords, Collections.reverseOrder()); // Sort from high to low
 
         List<GameRecord> topRecords = new ArrayList<GameRecord>();
         int i = 0;
@@ -58,10 +59,10 @@ public class AllGamesRecord {
         return topRecords;
     }
 
-    // use collections to sort from high to low of "n" records
-    public List<GameRecord> highGameList (String playerId, int n) {
+    // Returns a list of the top "n" highest-scoring game records for a specific player
+    public List<GameRecord> highGameList(String playerId, int n) {
         List<GameRecord> sortedRecords = new ArrayList<GameRecord>(gameRecordList);
-        Collections.sort(sortedRecords);
+        Collections.sort(sortedRecords, Collections.reverseOrder()); // Sort from high to low
 
         List<GameRecord> topRecords = new ArrayList<GameRecord>();
         int i = 0;
@@ -69,7 +70,6 @@ public class AllGamesRecord {
             if (i == n) {
                 break;
             }
-
             if (gr.getPlayerId().equals(playerId)) {
                 topRecords.add(gr);
                 i++;
