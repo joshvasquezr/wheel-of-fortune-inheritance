@@ -120,5 +120,6 @@ public class Mastermind extends Game {
         AllGamesRecord mastermindRecord = mastermindGame.playAll();
         System.out.println("\nMastermind Game Record:");
         mastermindRecord.highGameList(3).forEach(System.out::println);
+        System.out.println("Average: " + mastermindRecord.average());
     }
 }

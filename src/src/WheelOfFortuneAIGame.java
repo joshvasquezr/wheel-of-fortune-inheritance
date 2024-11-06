@@ -51,16 +51,37 @@ public class WheelOfFortuneAIGame extends WheelOfFortune {
         return true; // Continue playing for the next player
     }
 
-    // Main method to run the game with a list of AI players and print the top game records
+    // Main method to run the game with a list of AI players and print the results
     public static void main(String[] args) {
         List<WheelOfFortunePlayer> aiPlayers = List.of(
                 new DumbAIPlayer("DumbAI"),
                 new NormalAIPlayer("NormalAI"),
                 new SmartAIPlayer("SmartAI")
         );
+
+        AllGamesRecord allGamesRecord = new AllGamesRecord();
         WheelOfFortuneAIGame aiGame = new WheelOfFortuneAIGame(aiPlayers);
-        AllGamesRecord aiRecord = aiGame.playAll();
-        System.out.println("\nWheel of Fortune AI Game Record:");
-        aiRecord.highGameList(3).forEach(System.out::println);
+
+        // Run 3 games for each player (9 games in total)
+        for (int i = 0; i < 9; i++) {
+            GameRecord record = aiGame.play();
+            allGamesRecord.add(record);
+        }
+
+        // Display the top 3 scores for each player
+        for (WheelOfFortunePlayer player : aiPlayers) {
+            System.out.println("\nTop 3 scores for " + player.playerId() + ":");
+            allGamesRecord.highGameList(player.playerId(), 3).forEach(System.out::println);
+        }
+
+        // Calculate and display the average score across all games
+        double totalAverage = allGamesRecord.average();
+        System.out.println("\nAverage score across all 9 games: " + totalAverage);
+
+        // Calculate and display the average score for each player
+        for (WheelOfFortunePlayer player : aiPlayers) {
+            double playerAverage = allGamesRecord.average(player.playerId());
+            System.out.println("Average score for " + player.playerId() + ": " + playerAverage);
+        }
     }
 }

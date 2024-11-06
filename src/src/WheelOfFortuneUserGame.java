@@ -63,5 +63,6 @@ public class WheelOfFortuneUserGame extends WheelOfFortune {
         AllGamesRecord record = userGame.playAll();
         System.out.println("\nWheel of Fortune User Game Record:");
         record.highGameList(3).forEach(System.out::println);
+        System.out.println("Average: " + record.average());
     }
 }
