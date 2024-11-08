@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.Random;
 
 public class DumbAIPlayer implements WheelOfFortunePlayer {
@@ -8,6 +9,29 @@ public class DumbAIPlayer implements WheelOfFortunePlayer {
     public DumbAIPlayer(String playerId) {
         this.playerId = playerId;
         this.random = new Random();
+    }
+
+    // toString() method
+    @Override
+    public String toString() {
+        return "DumbAIPlayer{" +
+                "playerId='" + playerId + '\'' +
+                ", random=" + random +
+                '}';
+    }
+
+    // equals() method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DumbAIPlayer that = (DumbAIPlayer) o;
+        return Objects.equals(playerId, that.playerId) && Objects.equals(random, that.random);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerId, random);
     }
 
     // Generates the next guess as a random letter from 'a' to 'z'

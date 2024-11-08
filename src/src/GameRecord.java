@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class GameRecord implements Comparable<GameRecord> {
 
     private String playerId;
@@ -7,6 +9,30 @@ public class GameRecord implements Comparable<GameRecord> {
     public GameRecord(String playerId, int score) {
         this.playerId = playerId;
         this.score = score;
+    }
+
+    // toString() method
+    @Override
+    public String toString() {
+        return "GameRecord{" +
+                "playerId='" + playerId + '\'' +
+                ", score=" + score +
+                '}';
+    }
+
+    // equals() method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameRecord that = (GameRecord) o;
+        return score == that.score && Objects.equals(playerId, that.playerId);
+    }
+
+    // hashCode() method
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerId, score);
     }
 
     // Compares this GameRecord with another to sort by score in descending order
@@ -24,8 +50,4 @@ public class GameRecord implements Comparable<GameRecord> {
         return this.playerId;
     }
 
-    // Returns a string representation of this game record
-    public String toString() {
-        return "Player ID: " + this.playerId + ", Score: " + this.score;
-    }
 }

@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -23,6 +24,31 @@ public class NormalAIPlayer implements WheelOfFortunePlayer {
         } while (guessedLetters.contains(guess)); // Ensures the guess is unique
         guessedLetters.add(guess);
         return guess;
+    }
+
+    // equals() method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NormalAIPlayer that = (NormalAIPlayer) o;
+        return Objects.equals(playerId, that.playerId) && Objects.equals(random, that.random) && Objects.equals(guessedLetters, that.guessedLetters);
+    }
+
+    // hashCode() method
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerId, random, guessedLetters);
+    }
+
+    // toString() method
+    @Override
+    public String toString() {
+        return "NormalAIPlayer{" +
+                "playerId='" + playerId + '\'' +
+                ", random=" + random +
+                ", guessedLetters=" + guessedLetters +
+                '}';
     }
 
     // Returns the player ID

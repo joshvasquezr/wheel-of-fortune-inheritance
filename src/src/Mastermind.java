@@ -1,18 +1,41 @@
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
-import java.util.Scanner;
 
 // Mastermind Game Implementation
-public class Mastermind extends Game {
+public class Mastermind extends GuessingGame {
     private String secretCode;
-    private Scanner scanner;
     private final String[] COLORS = {"R", "G", "B", "Y", "O", "P"}; // Red, Green, Blue, Yellow, Orange, Purple
+
+    // equals() method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Mastermind that = (Mastermind) o;
+        return Objects.equals(secretCode, that.secretCode) && Objects.deepEquals(COLORS, that.COLORS);
+    }
+
+    // toString() method
+    @Override
+    public String toString() {
+        return "Mastermind{" +
+                "secretCode='" + secretCode + '\'' +
+                ", COLORS=" + Arrays.toString(COLORS) +
+                '}';
+    }
+
+    // hashCode() method
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), secretCode, Arrays.hashCode(COLORS));
+    }
 
     // Constructor: sets lives to 10 and generates a new secret code
     public Mastermind() {
-        super();
-        this.lives = 10;
-        this.secretCode = generateSecretCode();
-        this.scanner = new Scanner(System.in);
+        super(10);  // Initialize with 10 lives as per Mastermind rules
+        resetGame(); // Initialize the game state
     }
 
     // Generates a random 4-color secret code
@@ -30,24 +53,42 @@ public class Mastermind extends Game {
     public GameRecord play() {
         boolean codeFound = false;
         System.out.println("Welcome to Mastermind! Try to guess the 4-color secret code.");
+
         while (!codeFound && lives > 0) {
             System.out.println("Enter your guess (4 colors, use R, G, B, Y, O, P): ");
             String guess = scanner.nextLine().toUpperCase();
+
             if (guess.equals(secretCode)) {
                 codeFound = true;
                 System.out.println("Congratulations! You've cracked the code: " + secretCode);
             } else {
                 int exactMatches = calculateExactMatches(guess);
                 int partialMatches = calculatePartialMatches(guess);
+
                 System.out.println("Feedback: " + exactMatches + " exact, " + partialMatches + " partial.");
+
+                // Update score based on exact and partial matches
+                score += (exactMatches * 10) + (partialMatches * 5); // 10 points for exact, 5 for partial
+
+                // Deduct a life for each incorrect guess
                 lives--;
                 System.out.println("Incorrect guess! Lives remaining: " + lives);
             }
         }
+
         if (!codeFound) {
             System.out.println("Game Over! The correct code was: " + secretCode);
         }
-        return new GameRecord(playerId(), calculateScore());
+
+        return new GameRecord(playerId(), score);
+    }
+
+    // Resets the game state for a new game
+    @Override
+    public void resetGame() {
+        this.lives = 10;                 // Set lives back to 10 for a new game
+        this.score = 0;                  // Reset score to 0
+        this.secretCode = generateSecretCode(); // Generate a new secret code
     }
 
     // Calculates the number of exact matches between guess and secret code
@@ -58,7 +99,7 @@ public class Mastermind extends Game {
                 exactMatches++;
             }
         }
-        return Math.max(0, Math.min(exactMatches, 4));
+        return exactMatches;
     }
 
     // Calculates the number of partial matches (correct color, wrong position)
@@ -87,39 +128,32 @@ public class Mastermind extends Game {
                 }
             }
         }
-        return Math.max(0, Math.min(partialMatches, 4));
+        return partialMatches;
     }
 
-    // Asks the player if they want to play again, returns true if yes
-    @Override
-    public boolean playNext() {
-        System.out.println("Would you like to play Mastermind again? (y/n)");
-        String response = scanner.nextLine();
-        if (response.equalsIgnoreCase("y")) {
-            // Reset the game state for a new game
-            this.lives = 10;
-            this.secretCode = generateSecretCode();
-            return true;
-        }
-        return false;
-    }
-
-    // Returns the player ID (in this case, "User")
-    private String playerId() {
-        return "User";
-    }
-
-    // Calculates the score based on remaining lives
-    private int calculateScore() {
-        return lives * 10;
-    }
-
-    // Main method to start the game and display the top 3 game records
     public static void main(String[] args) {
-        Mastermind mastermindGame = new Mastermind();
-        AllGamesRecord mastermindRecord = mastermindGame.playAll();
-        System.out.println("\nMastermind Game Record:");
-        mastermindRecord.highGameList(3).forEach(System.out::println);
-        System.out.println("Average: " + mastermindRecord.average());
+        AllGamesRecord allGamesRecord = new AllGamesRecord(); // Track all game records
+        Mastermind mastermindGame = new Mastermind(); // Initialize the Mastermind game
+
+        // Loop to allow the user to play multiple games
+        while (true) {
+            // Play a game and add its record to the game records
+            GameRecord record = mastermindGame.play();
+            allGamesRecord.add(record);
+
+            // Ask if the user wants to play another game
+            if (!mastermindGame.playNext()) {
+                break; // Exit if the user chooses not to continue
+            }
+
+            mastermindGame.resetGame(); // Reset for a new game if continuing
+        }
+
+        // Display all scores and the average score once the player is done
+        System.out.println("\nAll scores for the games played:");
+        allGamesRecord.highGameList(2).forEach(System.out::println);
+
+        double averageScore = allGamesRecord.average();
+        System.out.println("\nAverage score across all games: " + averageScore);
     }
 }

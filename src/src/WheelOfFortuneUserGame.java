@@ -1,27 +1,47 @@
+import java.util.Objects;
 import java.util.Scanner;
 
 public class WheelOfFortuneUserGame extends WheelOfFortune {
     private Scanner scanner;
 
-    // Constructor: initializes the scanner for user input
+    // Constructor: initializes the scanner for user input and sets up the game
     public WheelOfFortuneUserGame() {
         super();
         this.scanner = new Scanner(System.in);
     }
 
-    // Plays one round of the game, returns a GameRecord for the user
+    // Main gameplay logic for the user
     @Override
     public GameRecord play() {
         boolean phraseFound = false;
+        resetGame(); // Reset the game state for each new game
+        System.out.println("Welcome to Wheel of Fortune! Try to guess the hidden phrase.");
+
+        // Main game loop
         while (!phraseFound && lives > 0) {
             System.out.println("Hidden Phrase: " + hiddenPhrase);
-            char guess = getGuess(); // Get the user's guess
-            processGuess(guess); // Process the guessed character
+            System.out.println("Guessed Letters: " + guessedLetters);
+            System.out.println("Enter your guess (a single letter or the full phrase): ");
+
+            String guess = scanner.nextLine().toLowerCase();
+            if (guess.length() == 1) {
+                // Single character guess
+                processGuess(guess);
+            } else {
+                // Full phrase guess
+                if (guess.equalsIgnoreCase(phrase)) {
+                    phraseFound = true;
+                    processPhraseGuess(); // Award points for guessing the full phrase
+                    System.out.println("Congratulations! You've guessed the phrase: " + phrase);
+                } else {
+                    System.out.println("Incorrect phrase! Lives remaining: " + --lives);
+                    score -= 10; // Penalty for incorrect phrase guess
+                }
+            }
 
             if (phrase.equalsIgnoreCase(hiddenPhrase.toString())) {
                 phraseFound = true;
-                processPhraseGuess(); // Award points for guessing the full phrase
-                System.out.println("Congratulations! You found the phrase: " + phrase);
+                System.out.println("Congratulations! You've guessed the phrase: " + phrase);
             } else if (lives == 0) {
                 System.out.println("Game Over! The correct phrase was: " + phrase);
             }
@@ -45,24 +65,59 @@ public class WheelOfFortuneUserGame extends WheelOfFortune {
         }
     }
 
-    // Prompts the user to enter a guess and returns the guessed character
-    @Override
-    public char getGuess() {
-        System.out.println("Enter your guess: ");
-        return scanner.nextLine().charAt(0);
-    }
-
     // Returns the user ID as "User"
-    private String playerId() {
+    @Override
+    protected String playerId() {
         return "User";
     }
-
-    // Main method to start the game and display the top game records
     public static void main(String[] args) {
+        // Initialize the game record keeper
+        AllGamesRecord allGamesRecord = new AllGamesRecord();
         WheelOfFortuneUserGame userGame = new WheelOfFortuneUserGame();
-        AllGamesRecord record = userGame.playAll();
-        System.out.println("\nWheel of Fortune User Game Record:");
-        record.highGameList(3).forEach(System.out::println);
-        System.out.println("Average: " + record.average());
+
+        // Loop to allow the user to play multiple games
+        while (true) {
+            // Play a game and add its record to the game records
+            GameRecord record = userGame.play();
+            allGamesRecord.add(record);
+
+            // Ask if the user wants to play again
+            if (!userGame.playNext()) {
+                break; // Exit the loop if the user doesn't want to continue
+            }
+
+            userGame.resetGame(); // Reset for a new game if continuing
+        }
+
+        // Display leaderboard and statistics only at the end
+        System.out.println("\nTop scores for the games played:");
+        allGamesRecord.highGameList(2).forEach(System.out::println);
+
+        double averageScore = allGamesRecord.average();
+        System.out.println("\nAverage score across the games: " + averageScore);
+    }
+
+    // equals() method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        WheelOfFortuneUserGame that = (WheelOfFortuneUserGame) o;
+        return Objects.equals(scanner, that.scanner);
+    }
+
+    // toString() method
+    @Override
+    public String toString() {
+        return "WheelOfFortuneUserGame{" +
+                "scanner=" + scanner +
+                '}';
+    }
+
+    // hashCode() method
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), scanner);
     }
 }

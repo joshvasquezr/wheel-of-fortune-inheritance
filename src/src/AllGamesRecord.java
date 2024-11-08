@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.Objects;
 
 public class AllGamesRecord {
 
@@ -57,6 +58,29 @@ public class AllGamesRecord {
             i++;
         }
         return topRecords;
+    }
+
+    // toString Method
+    @Override
+    public String toString() {
+        return "AllGamesRecord{" +
+                "gameRecordList=" + gameRecordList +
+                '}';
+    }
+
+    // equals Method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AllGamesRecord that = (AllGamesRecord) o;
+        return Objects.equals(gameRecordList, that.gameRecordList);
+    }
+
+    // hashCode Method
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(gameRecordList);
     }
 
     // Returns a list of the top "n" highest-scoring game records for a specific player
